@@ -48,5 +48,3 @@ func proxyRedirect(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Req
         }
     }
 }
-
-
