@@ -9,7 +9,8 @@ import(
 )
 
 //var authServerUrl = os.Getenv("HOST_URL")
-var authServerUrl = "http://password.ktrn.com"
+var authServerUrl = "https://password.berizaryad.ru"
+var resourcePubHost = "http://supernet.ktrn.com"
 var resourceHost = "localhost:8080"
 
 func main() {
@@ -33,17 +34,19 @@ func main() {
 
 func proxyRedirect(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
     return func(w http.ResponseWriter, r *http.Request) {
-        redirect := r.URL.Scheme + r.Host + r.URL.Path
+        redirect := r.URL.Scheme + resourcePubHost + r.URL.Path
+
         log.Println("SEND BACK TO ", redirect)
 
-        auth := false
+        auth := true
         if !auth {
             w.Header().Set("X-Redirect-To", redirect)
             http.Redirect(w, r, authServerUrl, http.StatusSeeOther)
         } else {
+            r.URL.Scheme = "http"
             r.Host = resourceHost
             w.Header().Set("X-Redirect-To", redirect)
-            w.Header().Set("X-Session", "123")
+            w.Header().Set("X-Session", "1234")
             p.ServeHTTP(w, r)
         }
     }
