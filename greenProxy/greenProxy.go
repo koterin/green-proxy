@@ -11,7 +11,9 @@ import(
 
 // TODO: this has to be env
 var AuthServerUrl = "https://password.berizaryad.ru"
+var AuthApiUrl = AuthServerUrl + "/api/auth/"
 var PublicUrl = "https://swagger.berizaryad.ru"
+var hClient = &http.Client{Timeout: 10 * time.Second}
 
 func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
     return func(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +21,7 @@ func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http
 
         token := r.URL.Query().Get("greenToken")
         if token != "" {
+            log.Println("24: token is present")
             auth = checkToken(token)
             if auth {
                 setCookie(w, token)
@@ -27,6 +30,7 @@ func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http
                 return
             }
         } else {
+            log.Println("no GreenToken, sending with browser cookies to checkSessionCookie")
             auth = checkSessionCookie(r)
         }
 
@@ -67,16 +71,37 @@ func deleteTokenFromUrl(u *url.URL) {
 }
 
 func checkToken(token string) bool {
-    //api
-    log.Println("checking token", token)
-    return true
+    req, err := http.NewRequest("GET", AuthApiUrl, nil)
+    if err != nil {
+        return false
+    }
+
+    log.Println("making checkToken request to ", req.URL)
+
+    req.AddCookie(&http.Cookie{Name: "sessionId", Value: token})
+    log.Println("sending cookie ", token)
+
+    resp, err := hClient.Do(req)
+    if err != nil {
+        return false
+    }
+
+    log.Println("code: ", resp.StatusCode)
+    log.Println("status: ", resp.Status)
+    if resp.StatusCode == 201 {
+        return true
+    }
+
+    return false
 }
 
 func checkSessionCookie(req *http.Request) bool {
     sessionCookie, err := req.Cookie("sessionId")
     if err != nil {
+        log.Println("checking browser cookie - it's not here")
         return false
     }
+    log.Println("checking browser cookie - it's here and it's ", sessionCookie.Value)
 
     return checkToken(sessionCookie.Value)
 }
