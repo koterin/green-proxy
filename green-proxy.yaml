@@ -4,11 +4,10 @@
   hosts: green-proxy
   become: true
   tasks:
-    - name: Create project directory and copy everything
-      synchronize:
-        src: ./
-        dest: ~/green-proxy
-        checksum: true
+    - name: Create /etc/green-proxy directory if it does not exist
+      file:
+        path: /etc/green-proxy
+        state: directory
 
     - name: Update and upgrade apt packages
       apt:
@@ -18,42 +17,24 @@
       package:
         name:
           - ca-certificates
-          - curl
 
-    - name: Load .env
-      include_vars:
-        dir: env
-        extensions:
-          - '.yaml'
+    - name: Copy binary to /etc/green-proxy
+      copy:
+        src: ./bin/proxy-runner-lin64
+        dest: /etc/green-proxy/proxy-runner-lin64
 
-    - name: Set env on host and create such file
-      file:
-        path: '/home/ktrn/{{ GREENFILE }}'
-      environment: '{{ GREENFILE }}'
+    - name: Giving proxy permission
+      shell:
+        cmd: 'chmod +x /etc/green-proxy/proxy-runner-lin64'
 
-#    - name: Download Go 1.18 package
-#      get_url:
-#        url: https://go.dev/dl/go1.18beta1.linux-amd64.tar.gz
-#        dest: /home/ktrn
+    - name: Copy service definition to /etc/systemd/sytem
+      copy:
+        src: ./config/green-proxy-linux.service
+        dest: /etc/systemd/system/green-proxy.service
 
-#    - name: Unpack Go package
-#      unarchive:
-#        src: /home/ktrn/go1.18beta1.linux-amd64.tar.gz
-#        dest: /home/ktrn
-#        remote_src: yes
-
-#    - name: Export paths to build 1
-#      shell:
-#        cmd: "export GOROOT=/go"
-
-#    - name: Export paths to build 2
-#      shell:
-#        cmd: "export GOPATH=/go"
-
-#    - name: Export paths to build 3
-#      shell:
-#        cmd: "export PATH=$GOPATH/bin:$GOROOT/bin:$PATH"
-
-#    - name: Build proxy
-#      shell:
-#        cmd: "cd ~/green-proxy && go build -o test-proxy"
+    - name: Starting proxy
+      systemd:
+        name: green-proxy
+        enabled: yes
+        state: started
+        daemon_reload: yes

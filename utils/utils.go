@@ -5,12 +5,12 @@ import(
         "net/http/httputil"
         "time"
         "net/url"
+        "os"
 )
 
-// TODO: this has to be env
-var PublicUrl = "https://superset.berizaryad.ru"
-var AuthServerUrl = "https://password.berizaryad.ru"
-var AuthApiUrl = "https://password.berizaryad.ru/api/auth"
+var PublicUrl = os.Getenv("PUBLIC_URL")
+var AuthServerUrl = os.Getenv("AUTH_SERVER_URL")
+var AuthApiUrl = os.Getenv("AUTH_API_URL")
 var hClient = &http.Client{Timeout: 10 * time.Second}
 
 func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
