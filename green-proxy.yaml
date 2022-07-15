@@ -3,6 +3,8 @@
 - name: green-proxy
   hosts: green-proxy
   become: true
+  vars_files:
+    - './env/.env'
   tasks:
     - name: Create /etc/green-proxy directory if it does not exist
       file:
@@ -23,10 +25,6 @@
         src: ./bin/proxy-runner-lin64
         dest: /etc/green-proxy/proxy-runner-lin64
 
-    - name: Giving proxy permission
-      shell:
-        cmd: 'chmod +x /etc/green-proxy/proxy-runner-lin64'
-
     - name: Copy service definition to /etc/systemd/sytem
       copy:
         src: ./config/green-proxy-linux.service
@@ -38,3 +36,9 @@
         enabled: yes
         state: started
         daemon_reload: yes
+      environment:
+        PROXY_LOCALHOST: "{{ PROXY_LOCALHOST }}"
+        PROXY_PORT: "{{ PROXY_PORT }}"
+        PUBLIC_URL: "{{ PUBLIC_URL }}"
+        AUTH_SERVER_URL: "{{ AUTH_SERVER_URL }}"
+        AUTH_API_URL: "{{ AUTH_API_URL }}"
