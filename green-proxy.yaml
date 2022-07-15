@@ -20,29 +20,40 @@
           - ca-certificates
           - curl
 
-    - name: Download Go 1.18 package
-      get_url:
-        url: https://go.dev/dl/go1.18beta1.linux-amd64.tar.gz
-        dest: /home/ktrn
+    - name: Load .env
+      include_vars:
+        dir: env
+        extensions:
+          - '.yaml'
 
-    - name: Unpack Go package
-      unarchive:
-        src: /home/ktrn/go1.18beta1.linux-amd64.tar.gz
-        dest: /home/ktrn
-        remote_src: yes
+    - name: Set env on host and create such file
+      file:
+        path: '/home/ktrn/{{ GREENFILE }}'
+      environment: '{{ GREENFILE }}'
 
-    - name: Export paths to build 1
-      shell:
-        cmd: "export GOROOT=/go"
+#    - name: Download Go 1.18 package
+#      get_url:
+#        url: https://go.dev/dl/go1.18beta1.linux-amd64.tar.gz
+#        dest: /home/ktrn
 
-    - name: Export paths to build 2
-      shell:
-        cmd: "export GOPATH=/go"
+#    - name: Unpack Go package
+#      unarchive:
+#        src: /home/ktrn/go1.18beta1.linux-amd64.tar.gz
+#        dest: /home/ktrn
+#        remote_src: yes
 
-    - name: Export paths to build 3
-      shell:
-        cmd: "export PATH=$GOPATH/bin:$GOROOT/bin:$PATH"
+#    - name: Export paths to build 1
+#      shell:
+#        cmd: "export GOROOT=/go"
 
-    - name: Build proxy
-      shell:
-        cmd: "cd ~/green-proxy && go build -o test-proxy"
+#    - name: Export paths to build 2
+#      shell:
+#        cmd: "export GOPATH=/go"
+
+#    - name: Export paths to build 3
+#      shell:
+#        cmd: "export PATH=$GOPATH/bin:$GOROOT/bin:$PATH"
+
+#    - name: Build proxy
+#      shell:
+#        cmd: "cd ~/green-proxy && go build -o test-proxy"
