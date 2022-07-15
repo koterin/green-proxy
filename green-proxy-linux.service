@@ -1,0 +1,9 @@
+[Unit]
+Description=Reverse Proxy Server
+
+[Service]
+ExecStart=/etc/green-proxy/proxy-runner
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -8,7 +8,7 @@ import(
 )
 
 // TODO: this has to be env
-var PublicUrl = "https://swagger.berizaryad.ru"
+var PublicUrl = "https://superset.berizaryad.ru"
 var AuthServerUrl = "https://password.berizaryad.ru"
 var AuthApiUrl = "https://password.berizaryad.ru/api/auth"
 var hClient = &http.Client{Timeout: 10 * time.Second}
@@ -41,7 +41,7 @@ func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http
 func redirectToAuthServer(w http.ResponseWriter, r *http.Request) {
     redirect := r.URL.Scheme + PublicUrl + r.URL.Path
     link := AuthServerUrl + "?redirect=" + redirect
-    http.Redirect(w, r, link, http.StatusSeeOther)
+    http.Redirect(w, r, link, 302)
 }
 
 func serveContent(w http.ResponseWriter, r *http.Request, proxy *httputil.ReverseProxy) {
@@ -57,7 +57,7 @@ func redirectWithoutToken(w http.ResponseWriter, r *http.Request) {
     deleteTokenFromUrl(r.URL)
 
     newLink := r.URL.Scheme + r.URL.Host + r.URL.RawQuery
-    http.Redirect(w, r, newLink, 301)
+    http.Redirect(w, r, newLink, 302)
 }
 
 func deleteTokenFromUrl(u *url.URL) {
