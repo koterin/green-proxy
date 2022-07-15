@@ -5,13 +5,13 @@ import(
         "net/url"
         "net/http"
         "net/http/httputil"
-//      "os"
 
         "ktrn.com/greenProxy"
 )
 
-//var authServerUrl = os.Getenv("HOST_URL")
+// TODO: this has to be env
 var Localhost = "http://localhost:8080"
+var proxyPort = ":3000"
 
 func main() {
     log.SetPrefix("[LOG] ")
@@ -23,11 +23,12 @@ func main() {
         panic(err)
     }
 
-    log.Println("green-proxy started successfully on port :3000")
+    log.Println("green-proxy started successfully on port ", proxyPort)
+    log.Println("serving content from ", Localhost)
 
     proxy := httputil.NewSingleHostReverseProxy(localServer)
 
     http.HandleFunc("/", greenProxy.ProxyRedirect(proxy))
 
-    log.Fatal(http.ListenAndServe(":3000", nil))
+    log.Fatal(http.ListenAndServe(proxyPort, nil))
 }

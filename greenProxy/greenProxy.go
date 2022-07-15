@@ -1,18 +1,16 @@
 package greenProxy
 
 import(
-        "log"
         "net/http"
         "net/http/httputil"
         "time"
         "net/url"
-        //"os"
 )
 
 // TODO: this has to be env
+var PublicUrl = "https://swagger.berizaryad.ru"
 var AuthServerUrl = "https://password.berizaryad.ru"
 var AuthApiUrl = "https://password.berizaryad.ru/api/auth"
-var PublicUrl = "https://swagger.berizaryad.ru"
 var hClient = &http.Client{Timeout: 10 * time.Second}
 
 func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
@@ -21,27 +19,20 @@ func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http
 
         token := r.URL.Query().Get("greenToken")
         if token != "" {
-            log.Println("GreenToken is in link")
             auth = checkToken(token)
-            log.Println("GreenToken checkes in CheckToken - res is ", auth)
             if auth {
                 setCookie(w, token)
-                log.Println("setting correct GreenToken to cookie", token)
                 redirectWithoutToken(w, r)
 
                 return
             }
         } else {
-            log.Println("No GreenToken, sending with browser cookies to checkSessionCookie")
             auth = checkSessionCookie(r)
-            log.Println("Cokkie check in checkSessionCookie is ", auth)
         }
 
         if !auth {
-            log.Println("after checkSessionCookie we go back to Auth")
             redirectToAuthServer(w, r)
         } else {
-            log.Println("after checkSessionCookie we serve content")
             serveContent(w, r, proxy)
         }
     }
@@ -64,10 +55,8 @@ func setCookie(w http.ResponseWriter, token string) {
 
 func redirectWithoutToken(w http.ResponseWriter, r *http.Request) {
     deleteTokenFromUrl(r.URL)
-    log.Println("URL after deleteTokenFromUrl ", r.URL)
 
     newLink := r.URL.Scheme + r.URL.Host + r.URL.RawQuery
-    log.Println("new link is ", newLink)
     http.Redirect(w, r, newLink, 301)
 }
 
@@ -83,22 +72,15 @@ func checkToken(token string) bool {
         return false
     }
 
-    log.Println("making checkToken request to ", req.URL)
-    log.Println("whis is same as ", AuthApiUrl)
-
     req.AddCookie(&http.Cookie{Name: "sessionId", Value: token})
-    log.Println("sending cookie ", token)
 
     AddBasicReqHeaders(req)
 
     resp, err := hClient.Do(req)
     if err != nil {
-        log.Println("error while hClient.Do, return false")
         return false
     }
 
-    log.Println("code: ", resp.StatusCode)
-    log.Println("status: ", resp.Status)
     if resp.StatusCode == 201 {
         return true
     }
@@ -109,10 +91,8 @@ func checkToken(token string) bool {
 func checkSessionCookie(req *http.Request) bool {
     sessionCookie, err := req.Cookie("sessionId")
     if err != nil {
-        log.Println("checking browser cookie in CheckSessionCookie - ERROR")
         return false
     }
-    log.Println("checking browser cookie - it's here and it's ", sessionCookie.Value)
 
     return checkToken(sessionCookie.Value)
 }
