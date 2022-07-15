@@ -1,0 +1,9 @@
+[Unit]
+Description=green-proxy: Reverse Proxy Server
+
+[Service]
+ExecStart=~/green-proxy
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
