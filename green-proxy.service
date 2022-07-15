@@ -1,8 +1,8 @@
 [Unit]
-Description=green-proxy: Reverse Proxy Server
+Description=Reverse Proxy Server
 
 [Service]
-ExecStart=~/green-proxy
+ExecStart=/home/ktrn/green-proxy/proxy-runner
 Restart=always
 
 [Install]
