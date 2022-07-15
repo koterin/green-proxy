@@ -1,9 +1,0 @@
-[Unit]
-Description=Reverse Proxy Server
-
-[Service]
-ExecStart=/home/ktrn/green-proxy/proxy-runner
-Restart=always
-
-[Install]
-WantedBy=multi-user.target

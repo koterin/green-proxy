@@ -6,7 +6,7 @@ import(
         "net/http"
         "net/http/httputil"
 
-        "ktrn.com/greenProxy"
+        "github.com/koterin/green-proxy/tree/master/utils"
 )
 
 // TODO: this has to be env
@@ -28,7 +28,7 @@ func main() {
 
     proxy := httputil.NewSingleHostReverseProxy(localServer)
 
-    http.HandleFunc("/", greenProxy.ProxyRedirect(proxy))
+    http.HandleFunc("/", utils.ProxyRedirect(proxy))
 
     log.Fatal(http.ListenAndServe(proxyPort, nil))
 }
