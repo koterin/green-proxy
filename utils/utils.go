@@ -5,12 +5,11 @@ import(
         "net/http/httputil"
         "time"
         "net/url"
-        "os"
 )
 
-var PublicUrl = os.Getenv("PUBLIC_URL")
-var AuthServerUrl = os.Getenv("AUTH_SERVER_URL")
-var AuthApiUrl = os.Getenv("AUTH_API_URL")
+var PublicUrl string
+var AuthServerUrl string
+var AuthApiUrl string
 var hClient = &http.Client{Timeout: 10 * time.Second}
 
 func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {

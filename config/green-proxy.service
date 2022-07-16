@@ -2,7 +2,7 @@
 Description=Reverse Proxy Server
 
 [Service]
-ExecStart=/etc/green-proxy/proxy-runner
+ExecStart=/etc/green-proxy/proxy-runner-lin64
 Restart=always
 
 [Install]
