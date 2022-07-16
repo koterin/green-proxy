@@ -6,7 +6,7 @@
   tasks:
     - name: Create /etc/green-proxy directory if it does not exist
       file:
-        path: /etc/green-proxy
+        path: /opt/green-proxy
         state: directory
 
     - name: Update and upgrade apt packages
@@ -21,7 +21,8 @@
     - name: Copy binary to /etc/green-proxy
       copy:
         src: ./bin/proxy-runner-lin64
-        dest: /etc/green-proxy
+        dest: /opt/green-proxy/proxy-runner-lin64
+        mode: +x
 
     - name: Copy service definition to /etc/systemd/sytem
       copy:

@@ -5,6 +5,7 @@ import(
         "net/http/httputil"
         "time"
         "net/url"
+        "log"
 )
 
 var PublicUrl string
@@ -74,6 +75,7 @@ func checkToken(token string) bool {
     req.AddCookie(&http.Cookie{Name: "sessionId", Value: token})
 
     AddBasicReqHeaders(req)
+    log.Println("req host is ", req.Host)
 
     resp, err := hClient.Do(req)
     if err != nil {
