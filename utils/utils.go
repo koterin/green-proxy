@@ -5,7 +5,6 @@ import(
         "net/http/httputil"
         "time"
         "net/url"
-        "log"
 )
 
 var PublicUrl string
@@ -75,7 +74,7 @@ func checkToken(token string) bool {
     req.AddCookie(&http.Cookie{Name: "sessionId", Value: token})
 
     AddBasicReqHeaders(req)
-    log.Println("req host is ", req.Host)
+    addOrigin(req)
 
     resp, err := hClient.Do(req)
     if err != nil {
@@ -112,6 +111,11 @@ func AddBasicReqHeaders(req *http.Request) {
     req.Header.Set("Access-Control-Allow-Credentials", "true")
     req.Header.Set("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
     req.Header.Set("Content-Type", "application/json")
+}
+
+func addOrigin(req *http.Request) {
+    originUrl, _ := url.Parse(PublicUrl)
+    req.Header.Set("Origin", originUrl.Host)
 }
 
 func AddBasicHeaders(w http.ResponseWriter) {
