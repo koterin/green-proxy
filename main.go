@@ -19,7 +19,7 @@ func main() {
 
     flag.StringVar(&localhost,
                     "host",
-                    "localhost:8080",
+                    "http://localhost:8080",
                     "address of the resource being proxied")
     flag.StringVar(&proxyPort,
                     "port",

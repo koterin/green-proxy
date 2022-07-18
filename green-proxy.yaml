@@ -1,10 +1,10 @@
 #!/usr/bin/env ansible-playbook
 
 - name: green-proxy
-  hosts: green-proxy
+  hosts: superset
   become: true
   tasks:
-    - name: Create /etc/green-proxy directory if it does not exist
+    - name: Create /opt/green-proxy directory if it does not exist
       file:
         path: /opt/green-proxy
         state: directory
@@ -18,7 +18,7 @@
         name:
           - ca-certificates
 
-    - name: Copy binary to /etc/green-proxy
+    - name: Copy binary to /opt/green-proxy
       copy:
         src: ./bin/proxy-runner-lin64
         dest: /opt/green-proxy/proxy-runner-lin64
