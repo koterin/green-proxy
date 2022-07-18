@@ -34,9 +34,13 @@ func main() {
                     "https://password.berizaryad.ru",
                     "URL of the AuthServer")
     flag.StringVar(&utils.AuthApiUrl,
-                    "authapi",
+                    "authApi",
                     "https://password.berizaryad.ru/api/auth",
                     "URL of the /api/auth handler")
+    flag.StringVar(&utils.API_KEY,
+                    "apiKey",
+                    "eoAM9QK0lGl0dmXIlqYaH5rayeWAp93i/qn874T284I=",
+                    "API key to reach /auth/api handler")
     flag.Parse()
 
     localServer, err := url.Parse(localhost)

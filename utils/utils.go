@@ -10,6 +10,7 @@ import(
 var PublicUrl string
 var AuthServerUrl string
 var AuthApiUrl string
+var API_KEY string
 var hClient = &http.Client{Timeout: 10 * time.Second}
 
 func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
@@ -75,6 +76,7 @@ func checkToken(token string) bool {
 
     AddBasicReqHeaders(req)
     addOrigin(req)
+    addApiKey(req)
 
     resp, err := hClient.Do(req)
     if err != nil {
@@ -116,6 +118,10 @@ func AddBasicReqHeaders(req *http.Request) {
 func addOrigin(req *http.Request) {
     originUrl, _ := url.Parse(PublicUrl)
     req.Header.Set("Origin", originUrl.Host)
+}
+
+func addApiKey(req *http.Request) {
+    req.Header.Set("Api-Key", API_KEY)
 }
 
 func AddBasicHeaders(w http.ResponseWriter) {
