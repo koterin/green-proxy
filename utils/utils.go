@@ -117,7 +117,7 @@ func AddBasicReqHeaders(req *http.Request) {
 
 func addOrigin(req *http.Request) {
     originUrl, _ := url.Parse(PublicUrl)
-    req.Header.Set("Origin", originUrl.Host)
+    req.Header.Set("X-Green-Origin", originUrl.Host)
 }
 
 func addApiKey(req *http.Request) {
