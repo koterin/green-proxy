@@ -1,4 +1,4 @@
-module github.com/koterin/green-proxy
+module main
 
 go 1.18
 

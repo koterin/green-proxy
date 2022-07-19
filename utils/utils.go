@@ -5,43 +5,44 @@ import(
         "net/http/httputil"
         "time"
         "net/url"
+        "log"
 )
 
-var PublicUrl string
-var AuthServerUrl string
-var AuthApiUrl string
-var API_KEY string
-var hClient = &http.Client{Timeout: 10 * time.Second}
+var (
+        PublicUrl       string
+        AuthServerUrl   string
+        AuthApiUrl      string
+        API_KEY         string
+        hClient = &http.Client{Timeout: 10 * time.Second}
+)
 
 func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
     return func(w http.ResponseWriter, r *http.Request) {
-        var auth bool
 
         token := r.URL.Query().Get("greenToken")
-        if token != "" {
-            auth = checkToken(token)
-            if auth {
-                setCookie(w, token)
-                redirectWithoutToken(w, r)
-
+        if token == "" {
+            if sessionValid := checkSessionCookie(r); !sessionValid {
+                redirectToAuthServer(w, r)
                 return
             }
-        } else {
-            auth = checkSessionCookie(r)
+            serveContent(w, r, proxy)
+
+            return
         }
 
-        if !auth {
-            redirectToAuthServer(w, r)
-        } else {
-            serveContent(w, r, proxy)
+        if tokenIsValid := checkToken(token); !tokenIsValid {
+			redirectToAuthServer(w, r)
+            return
         }
+        setCookie(w, token)
+        redirectWithoutToken(w, r)
     }
 }
 
 func redirectToAuthServer(w http.ResponseWriter, r *http.Request) {
-    redirect := r.URL.Scheme + PublicUrl + r.URL.Path
+    redirect := r.URL.Scheme + r.URL.Host + r.URL.Path
     link := AuthServerUrl + "?redirect=" + redirect
-    http.Redirect(w, r, link, 302)
+    http.Redirect(w, r, link, http.StatusSeeOther)
 }
 
 func serveContent(w http.ResponseWriter, r *http.Request, proxy *httputil.ReverseProxy) {
@@ -57,7 +58,7 @@ func redirectWithoutToken(w http.ResponseWriter, r *http.Request) {
     deleteTokenFromUrl(r.URL)
 
     newLink := r.URL.Scheme + r.URL.Host + r.URL.RawQuery
-    http.Redirect(w, r, newLink, 302)
+    http.Redirect(w, r, newLink, http.StatusSeeOther)
 }
 
 func deleteTokenFromUrl(u *url.URL) {
@@ -69,25 +70,41 @@ func deleteTokenFromUrl(u *url.URL) {
 func checkToken(token string) bool {
     req, err := http.NewRequest("GET", AuthApiUrl, nil)
     if err != nil {
+        log.Println("Error while creating request to /auth/api: ", err)
         return false
     }
 
-    req.AddCookie(&http.Cookie{Name: "sessionId", Value: token})
-
-    AddBasicReqHeaders(req)
-    addOrigin(req)
-    addApiKey(req)
+    setupRequest(req, token)
 
     resp, err := hClient.Do(req)
     if err != nil {
+        logRequest(req)
         return false
     }
 
-    if resp.StatusCode == 201 {
+    if resp.StatusCode == http.StatusCreated {
         return true
     }
 
     return false
+}
+
+func setupRequest(req *http.Request, token string) {
+    addBasicReqHeaders(req)
+    addOrigin(req)
+    addApiKey(req)
+    req.AddCookie(createCookie(token))
+}
+
+func logRequest(req *http.Request) {
+    log.Println("Error while sending request to /auth/api")
+    log.Println("---DEBUG---")
+
+    dump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+        log.Fatal(err)
+    }
+    log.Println(dump)
 }
 
 func checkSessionCookie(req *http.Request) bool {
@@ -99,14 +116,18 @@ func checkSessionCookie(req *http.Request) bool {
     return checkToken(sessionCookie.Value)
 }
 
-func CorsHandler(w http.ResponseWriter, req *http.Request) {
-    AddBasicHeaders(w)
-    w.WriteHeader(http.StatusOK)
-
-    return
+func createCookie(token string) *http.Cookie {
+    return &http.Cookie{
+        Name:   "sessionId",
+        Value:  token,
+        Expires: (time.Now().Add(time.Duration(168) * time.Hour)),
+        Path: "/",
+        HttpOnly: true,
+        Secure: true,
+    }
 }
 
-func AddBasicReqHeaders(req *http.Request) {
+func addBasicReqHeaders(req *http.Request) {
     req.Header.Set("Method", "GET")
     req.Header.Set("Accept", "*/*")
     req.Header.Set("Access-Control-Allow-Origin", PublicUrl)
@@ -122,23 +143,4 @@ func addOrigin(req *http.Request) {
 
 func addApiKey(req *http.Request) {
     req.Header.Set("Api-Key", API_KEY)
-}
-
-func AddBasicHeaders(w http.ResponseWriter) {
-    w.Header().Set("Access-Control-Allow-Origin", PublicUrl)
-    w.Header().Set("Access-Control-Allow-Credentials", "true")
-    w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT")
-    w.Header().Set("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
-    w.Header().Set("Content-Type", "application/json")
-}
-
-func createCookie(token string) *http.Cookie {
-    return &http.Cookie{
-        Name:   "sessionId",
-        Value:  token,
-        Expires: (time.Now().Add(time.Duration(168) * time.Hour)),
-        Path: "/",
-        HttpOnly: true,
-        Secure: true,
-    }
 }

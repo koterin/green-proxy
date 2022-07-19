@@ -39,7 +39,7 @@ func main() {
                     "URL of the /api/auth handler")
     flag.StringVar(&utils.API_KEY,
                     "apiKey",
-                    "eoAM9QK0lGl0dmXIlqYaH5rayeWAp93i/qn874T284I=",
+                    "1234",
                     "API key to reach /auth/api handler")
     flag.Parse()
 
