@@ -7,7 +7,7 @@ import(
         "net/http/httputil"
         "flag"
 
-        "github.com/koterin/green-proxy/tree/master/utils"
+        "berizaryad/green-proxy/utils"
 )
 
 var localhost string
@@ -27,7 +27,7 @@ func main() {
                     "port to run proxy on")
     flag.StringVar(&utils.PublicUrl,
                     "url",
-                    "https://superset.berizaryad.ru",
+                    "https://swagger.berizaryad.ru",
                     "public URL of the resource to be proxied")
     flag.StringVar(&utils.AuthServerUrl,
                     "authUrl",
