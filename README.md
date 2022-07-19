@@ -26,25 +26,16 @@
 В переменных окружения можно и нужно задать:
 
 ```
-Usage of ./proxy-runner-mac:
-  -apiKey string
-    	API-ключ для доступа к /api/auth
-        (default "eoAM9QK0lGl0dmXIlqYaH5rayeWAp93i/qn874T284I=")
-  -authApi string
-    	URL ручки /api/auth handler авторизационного сервиса
-        (default "https://password.berizaryad.ru/api/auth")
-  -authUrl string
-    	URL сервиса атовризации
-        (default "https://password.berizaryad.ru")
-  -host string
-    	какой сервис на локальной машине надо спрятать за прокси
-        (default "http://localhost:8080")
-  -port string
-    	на каком порту запустить сам прокси
-        (default ":3000")
-  -url string
-    	адрес ресурса, который необходимо проксировать
-        (default "https://superset.berizaryad.ru")
+Usage: proxy-runner-mac [--host HOST] [--port PORT] [--url URL] [--apikey APIKEY] [--authurl AUTHURL] [--authapi AUTHAPI]
+
+Options:
+  --host HOST            Service to be proxied (on localhost) [default: http://localhost:8080]
+  --port PORT            Port to serve proxy from [default: :3000]
+  --url URL              URL of the service to be proxied [default: https://superset.berizaryad.ru]
+  --apikey APIKEY        API-key for /api/auth [default: 1234]
+  --authurl AUTHURL      URL of the Authorization server [default: https://password.berizaryad.ru]
+  --authapi AUTHAPI      URL of the /api/auth handler [default: https://password.berizaryad.ru/api/auth]
+  --help, -h             display this help and exit
 ```
 
 ## Принцип работы
