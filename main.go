@@ -5,55 +5,40 @@ import(
         "net/url"
         "net/http"
         "net/http/httputil"
-        "flag"
+
+        "github.com/alexflint/go-arg"
 
         "berizaryad/green-proxy/utils"
 )
 
-var localhost string
-var proxyPort string
+var Args struct {
+	Host    string  `help:"Service to be proxied (on localhost)" default:"http://localhost:8080"`
+    Port    string  `help:"Port to serve proxy from" default:":3000"`
+    Url     string  `help:"URL of the service to be proxied" default:"https://superset.berizaryad.ru"`
+	ApiKey  string  `help:"API-key for /api/auth" default:"1234"`
+    AuthUrl string  `help:"URL of the Authorization server" default:"https://password.berizaryad.ru"`
+    AuthApi string  `help:"URL of the /api/auth handler" default:"https://password.berizaryad.ru/api/auth"`
+}
 
 func main() {
     log.SetPrefix("[LOG] ")
     log.SetFlags(3)
 
-    flag.StringVar(&localhost,
-                    "host",
-                    "http://localhost:8080",
-                    "address of the resource being proxied")
-    flag.StringVar(&proxyPort,
-                    "port",
-                    ":3000",
-                    "port to run proxy on")
-    flag.StringVar(&utils.PublicUrl,
-                    "url",
-                    "https://swagger.berizaryad.ru",
-                    "public URL of the resource to be proxied")
-    flag.StringVar(&utils.AuthServerUrl,
-                    "authUrl",
-                    "https://password.berizaryad.ru",
-                    "URL of the AuthServer")
-    flag.StringVar(&utils.AuthApiUrl,
-                    "authApi",
-                    "https://password.berizaryad.ru/api/auth",
-                    "URL of the /api/auth handler")
-    flag.StringVar(&utils.API_KEY,
-                    "apiKey",
-                    "1234",
-                    "API key to reach /auth/api handler")
-    flag.Parse()
+    p := arg.MustParse(&Args)
 
-    localServer, err := url.Parse(localhost)
+    localServer, err := url.Parse(Args.Host)
     if err != nil {
-        panic(err)
+	    p.Fail("local resource must be in form of http://localhost:8080")
     }
 
-    log.Println("green-proxy started successfully on port ", proxyPort)
-    log.Println("serving content from ", localhost)
+    utils.InitConfig(Args.Url, Args.AuthUrl, Args.AuthApi, Args.ApiKey)
+
+    log.Println("green-proxy started successfully on port ", Args.Port)
+    log.Println("serving content from ", Args.Host)
 
     proxy := httputil.NewSingleHostReverseProxy(localServer)
 
     http.HandleFunc("/", utils.ProxyRedirect(proxy))
 
-    log.Fatal(http.ListenAndServe(proxyPort, nil))
+    log.Fatal(http.ListenAndServe(Args.Port, nil))
 }

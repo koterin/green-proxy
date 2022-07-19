@@ -42,6 +42,8 @@ func ProxyRedirect(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http
 func redirectToAuthServer(w http.ResponseWriter, r *http.Request) {
     redirect := r.URL.Scheme + r.URL.Host + r.URL.Path
     link := AuthServerUrl + "?redirect=" + redirect
+    log.Println("host is", r.URL.Host)
+    log.Println("link to resirect is", link)
     http.Redirect(w, r, link, http.StatusSeeOther)
 }
 
@@ -143,4 +145,11 @@ func addOrigin(req *http.Request) {
 
 func addApiKey(req *http.Request) {
     req.Header.Set("Api-Key", API_KEY)
+}
+
+func InitConfig(url string, authUrl string, authApi string, apiKey string) {
+    PublicUrl = url
+    AuthServerUrl = authUrl
+    AuthApiUrl = authApi
+    API_KEY = apiKey
 }
