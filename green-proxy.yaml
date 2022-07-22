@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: green-proxy
-  hosts: green-proxy
+  hosts: wikijs
   become: true
   tasks:
     - name: Create /opt/green-proxy directory if it does not exist

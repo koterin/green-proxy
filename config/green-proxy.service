@@ -2,7 +2,7 @@
 Description=Reverse Proxy Server
 
 [Service]
-ExecStart=/opt/green-proxy/proxy-runner-lin64 -authUrl=https://password.berizaryad.ru -authApi=https://password.berizaryad.ru/api/auth -host=http://localhost:8080 -port=:3000 -url=https://superset.berizaryad.ru -apiKey=1234
+ExecStart=/opt/green-proxy/proxy-runner-lin64 --authurl=https://password.berizaryad.ru --authapi=https://password.berizaryad.ru/api/auth --host=http://localhost:4000 --port=:5000 --url=https://swagger.berizaryad.ru --apikey=1234
 Restart=always
 
 [Install]
