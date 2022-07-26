@@ -82,7 +82,7 @@ func checkToken(token string) bool {
         return false
     }
 
-    if resp.StatusCode == http.StatusCreated {
+    if resp.StatusCode == http.StatusAccepted {
         return true
     }
 
